@@ -23,6 +23,7 @@ body { margin: 0; background: #008080; color: #000; font: 12px/1.4 Tahoma, 'MS S
 .title-bar .ctl span:last-child { margin-left: 2px; }
 .win-body { padding: 10px; }
 .main-win { max-width: 1060px; margin: 0 auto; }
+.desk-title { max-width: 1060px; margin: 4px auto 14px; color: #fff; font: bold 30px Tahoma, "MS Sans Serif", sans-serif; text-shadow: 2px 2px 0 #004040; letter-spacing: .5px; }
 
 /* botones */
 button { font: inherit; color: #000; border: 0; padding: 4px 12px; min-width: 75px; min-height: 23px; cursor: pointer; border-radius: 0; }
@@ -131,6 +132,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
   .task { width: auto; flex: 1; min-width: 0; }
 }
 @media (max-width: 600px) {
+  .desk-title { font-size: 22px; margin: 10px 10px 10px; }
   body { padding: 0 0 40px; font-size: 13px; }
   .main-win { min-height: calc(100vh - 32px); }
   .title-bar .ctl { display: none; }
@@ -161,6 +163,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
 </style>
 </head>
 <body>
+<h1 class="desk-title">Series argentinas</h1>
 <div class="win main-win">
   <div class="title-bar"><span class="emo">📼</span><span class="tt" id="wt">Series argentinas</span><span class="ctl"><span>_</span><span>□</span><span>×</span></span></div>
   <div class="win-body">
@@ -453,8 +456,8 @@ function setShow(id) {
   seen = new Set(store.get('seen', []));
   season = store.get('season', 1);
   if (!DATA[season]) season = 1;
-  $('home-link').textContent = 'Series argentinas';
-  $('sub').textContent = `${SHOWS[show].name} · ${SHOWS[show].sub}`;
+  $('home-link').textContent = SHOWS[show].name;
+  $('sub').textContent = SHOWS[show].sub;
   $('shows').innerHTML = Object.entries(SHOWS).map(([id, x]) => `<button type="button" data-show="${id}" class="${id === show ? 'on' : ''}">${x.name}</button>`).join('');
 }
 let current = null;
