@@ -609,12 +609,12 @@ document.addEventListener('click', (ev) => {
   const t = ev.target.closest('[data-t]');
   if (t) { season = +t.dataset.t; store.set('season', season); render(); if (t.classList.contains('season')) $('tabs').scrollIntoView({ behavior: 'smooth' }); return; }
   const ep = ev.target.closest('[data-k]');
-  if (ep) return play(flat.find((x) => key(x) === ep.dataset.k));
+  if (ep) return play(flat.find((x) => key(x) === ep.dataset.k), { autoplay: true });
   if (ev.target.id === 'c-pause') return pauseClock();
   if (ev.target.id === 'c-resume') return startClock();
 });
-$('prev').onclick = () => step(-1);
-$('next').onclick = () => step(1);
+$('prev').onclick = () => step(-1, { autoplay: true });
+$('next').onclick = () => step(1, { autoplay: true });
 $('f-seen').onclick = () => {
   const k = key(current);
   seen.has(k) ? seen.delete(k) : seen.add(k);
