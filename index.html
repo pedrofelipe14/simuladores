@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Los Simuladores</title>
+<title>Series argentinas</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='1' y='1' width='14' height='11' fill='%23c0c0c0'/%3E%3Crect x='1' y='1' width='14' height='1' fill='%23fff'/%3E%3Crect x='1' y='1' width='1' height='11' fill='%23fff'/%3E%3Crect x='1' y='11' width='14' height='1' fill='%23000'/%3E%3Crect x='14' y='1' width='1' height='11' fill='%23000'/%3E%3Crect x='3' y='3' width='10' height='7' fill='%23000'/%3E%3Crect x='4' y='4' width='8' height='5' fill='%23008080'/%3E%3Cpath d='M6 5h4v1H7v1h3v2H6V8h3V7H6z' fill='%23ff0'/%3E%3Crect x='6' y='12' width='4' height='1' fill='%23808080'/%3E%3Crect x='3' y='13' width='10' height='2' fill='%23c0c0c0'/%3E%3Crect x='3' y='13' width='10' height='1' fill='%23fff'/%3E%3Crect x='3' y='14' width='10' height='1' fill='%23000'/%3E%3Crect x='11' y='13' width='1' height='1' fill='%230c0'/%3E%3C/svg%3E" />
 <style>
 * { box-sizing: border-box; }
@@ -162,7 +162,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
 </head>
 <body>
 <div class="win main-win">
-  <div class="title-bar"><span class="emo">📼</span><span class="tt" id="wt">Los Simuladores</span><span class="ctl"><span>_</span><span>□</span><span>×</span></span></div>
+  <div class="title-bar"><span class="emo">📼</span><span class="tt" id="wt">Series argentinas</span><span class="ctl"><span>_</span><span>□</span><span>×</span></span></div>
   <div class="win-body">
     <div class="toolbar">
       <h1><a href="#" id="home-link">Los Simuladores</a></h1>
@@ -216,7 +216,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
 
 <div class="taskbar">
   <button class="start" id="start" type="button" title="Volver al índice"><span class="flag"><i></i><i></i><i></i><i></i></span>Inicio</button>
-  <div class="task" id="task">📼 Los Simuladores</div>
+  <div class="task" id="task">📼 Series argentinas</div>
   <div class="tray" id="tray"></div>
 </div>
 
@@ -453,8 +453,8 @@ function setShow(id) {
   seen = new Set(store.get('seen', []));
   season = store.get('season', 1);
   if (!DATA[season]) season = 1;
-  $('home-link').textContent = SHOWS[show].name;
-  $('sub').textContent = SHOWS[show].sub;
+  $('home-link').textContent = 'Series argentinas';
+  $('sub').textContent = `${SHOWS[show].name} · ${SHOWS[show].sub}`;
   $('shows').innerHTML = Object.entries(SHOWS).map(([id, x]) => `<button type="button" data-show="${id}" class="${id === show ? 'on' : ''}">${x.name}</button>`).join('');
 }
 let current = null;
@@ -503,7 +503,7 @@ function render() {
 }
 function winTitle(t) { $('wt').textContent = t; $('task').textContent = '📼 ' + t; document.title = t; }
 function goHome() {
-  winTitle(SHOWS[show].name);
+  winTitle(`Series argentinas - ${SHOWS[show].name}`);
   current = null;
   pauseClock(); hideNext();
   $('stage').hidden = true;
@@ -618,7 +618,7 @@ function route() {
 }
 addEventListener('popstate', route);
 setShow(ls.get('app:show', 'sim'));
-winTitle(SHOWS[show].name);
+winTitle(`Series argentinas - ${SHOWS[show].name}`);
 route();
 </script>
 </body>
