@@ -37,6 +37,10 @@ button:disabled { color: #808080; text-shadow: 1px 1px 0 #fff; cursor: default; 
 .toolbar h1 { font-size: 13px; margin: 0; }
 .toolbar h1 a { color: #000; text-decoration: none; }
 .toolbar .sub { color: #404040; }
+.shows { display: flex; gap: 4px; margin-left: auto; }
+.shows button { min-width: 0; padding: 3px 10px; }
+.shows button.on { font-weight: bold; background: #e0e0e0 repeating-conic-gradient(#c0c0c0 0 25%, #fff 0 50%) 0 0 / 2px 2px; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
+.shows + .back { margin-left: 4px; }
 .back { margin-left: auto; color: #000; text-decoration: none; background: #c0c0c0; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff; padding: 4px 12px; min-height: 23px; }
 .back:active:not(:disabled) { color: #000; padding: 5px 11px 3px 13px; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
 .home[hidden], .back[hidden], .stage[hidden] { display: none; }
@@ -133,6 +137,8 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
   .win-body { padding: 8px; }
   .toolbar { flex-wrap: wrap; gap: 2px 8px; }
   .toolbar .sub { display: none; }
+  .shows { margin-left: 0; order: 3; flex-basis: 100%; }
+  .shows button { flex: 1; }
   .box .big { font-size: 32px; }
   .box h2 { font-size: 16px; }
   .info h2 { font-size: 15px; }
@@ -160,7 +166,8 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
   <div class="win-body">
     <div class="toolbar">
       <h1><a href="#" id="home-link">Los Simuladores</a></h1>
-      <span class="sub">todos los capítulos para ver de corrido</span>
+      <span class="sub" id="sub"></span>
+      <span class="shows" id="shows"></span>
       <button class="lnk back" id="back" type="button" hidden>&larr; Atrás</button>
     </div>
 
@@ -214,7 +221,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
 </div>
 
 <script>
-const DATA = {
+const SIM_DATA = {
  "1": [
   {
    "n": 1,
@@ -412,20 +419,46 @@ const DATA = {
   }
  ]
 };
-const ICON = {
-  '1x1': '🎄', '1x2': '💸', '1x3': '🥛', '1x4': '👓', '1x5': '📚', '1x6': '🏛️', '1x7': '🏦', '1x8': '💔', '1x9': '🎤', '1x10': '🍽️', '1x11': '🚔', '1x12': '🌙', '1x13': '🕶️',
-  '2x1': '🏥', '2x2': '🤖', '2x3': '💎', '2x4': '👴', '2x5': '🏆', '2x6': '💒', '2x7': '🕵️', '2x8': '🎣', '2x9': '⚖️', '2x10': '🎻', '2x11': '🏁',
+const $ = (id) => document.getElementById(id);
+const SHOWS = {
+  sim: {
+    name: 'Los Simuladores', sub: 'todos los capítulos para ver de corrido', data: SIM_DATA,
+    icon: {
+      '1x1': '🎄', '1x2': '💸', '1x3': '🥛', '1x4': '👓', '1x5': '📚', '1x6': '🏛️', '1x7': '🏦', '1x8': '💔', '1x9': '🎤', '1x10': '🍽️', '1x11': '🚔', '1x12': '🌙', '1x13': '🕶️',
+      '2x1': '🏥', '2x2': '🤖', '2x3': '💎', '2x4': '👴', '2x5': '🏆', '2x6': '💒', '2x7': '🕵️', '2x8': '🎣', '2x9': '⚖️', '2x10': '🎻', '2x11': '🏁',
+    },
+  },
+  sol: {
+    name: 'Sol Negro', sub: 'miniserie de 2003, 13 capítulos', defIcon: '🌑',
+    about: 'Un pibe se interna en un neuropsiquiátrico para no ir preso, y ahí se mete en la vida de los otros pacientes mientras le arman una maniobra para quedarse con su parte de una herencia.',
+    data: { 1: [{"n":1,"title":"Capítulo 1","desc":"","dur":"46 min","url":"https://ok.ru/videoembed/5957439523365","secs":2737},{"n":2,"title":"Capítulo 2","desc":"","dur":"42 min","url":"https://ok.ru/videoembed/5957438671397","secs":2533},{"n":3,"title":"Capítulo 3","desc":"","dur":"45 min","url":"https://ok.ru/videoembed/5957437884965","secs":2712},{"n":4,"title":"Capítulo 4","desc":"","dur":"44 min","url":"https://ok.ru/videoembed/5957436967461","secs":2664},{"n":5,"title":"Capítulo 5","desc":"","dur":"42 min","url":"https://ok.ru/videoembed/5957436508709","secs":2541},{"n":6,"title":"Capítulo 6","desc":"","dur":"42 min","url":"https://ok.ru/videoembed/5957435722277","secs":2546},{"n":7,"title":"Capítulo 7","desc":"","dur":"42 min","url":"https://ok.ru/videoembed/5957435329061","secs":2547},{"n":8,"title":"Capítulo 8","desc":"","dur":"42 min","url":"https://ok.ru/videoembed/5957433428517","secs":2549},{"n":9,"title":"Capítulo 9","desc":"","dur":"43 min","url":"https://ok.ru/videoembed/5957432904229","secs":2573},{"n":10,"title":"Capítulo 10","desc":"","dur":"41 min","url":"https://ok.ru/videoembed/5957432511013","secs":2478},{"n":11,"title":"Capítulo 11","desc":"","dur":"39 min","url":"https://ok.ru/videoembed/5957432248869","secs":2354},{"n":12,"title":"Capítulo 12","desc":"","dur":"39 min","url":"https://ok.ru/videoembed/5957431921189","secs":2325},{"n":13,"title":"Capítulo 13","desc":"","dur":"40 min","url":"https://ok.ru/videoembed/5957428120101","secs":2427}] },
+    icon: {},
+  },
 };
-const flat = Object.entries(DATA).flatMap(([t, eps]) => eps.map((e) => ({ ...e, t: +t })));
+let show, DATA, ICON, flat, seen, season;
 const key = (e) => `${e.t}x${e.n}`;
-const store = {
-  get(k, d) { try { return JSON.parse(localStorage.getItem('sim:' + k)) ?? d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('sim:' + k, JSON.stringify(v)); } catch {} },
+const hashOf = (e) => show === 'sim' ? key(e) : `${show}-${key(e)}`;
+const ls = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
-let seen = new Set(store.get('seen', []));
-let season = store.get('season', 1);
+// cada serie guarda lo suyo (los de Los Simuladores siguen con la clave de antes)
+const store = { get: (k, d) => ls.get(show + ':' + k, d), set: (k, v) => ls.set(show + ':' + k, v) };
+const icon = (k) => ICON[k] || SHOWS[show].defIcon || '🎬';
+function setShow(id) {
+  show = SHOWS[id] ? id : 'sim';
+  ls.set('app:show', show);
+  ({ data: DATA, icon: ICON } = SHOWS[show]);
+  flat = Object.entries(DATA).flatMap(([t, eps]) => eps.map((e) => ({ ...e, t: +t })));
+  seen = new Set(store.get('seen', []));
+  season = store.get('season', 1);
+  if (!DATA[season]) season = 1;
+  $('home-link').textContent = SHOWS[show].name;
+  $('sub').textContent = SHOWS[show].sub;
+  $('shows').innerHTML = Object.entries(SHOWS).map(([id, x]) => `<button type="button" data-show="${id}" class="${id === show ? 'on' : ''}">${x.name}</button>`).join('');
+}
 let current = null;
-let auto = store.get('auto', true);
+let auto = ls.get('sim:auto', true);
 // ok.ru no avisa cuando termina el video: contamos el tiempo desde que le das play
 // (cuando hacés click en el reproductor) contra la duración exacta del capítulo.
 const clock = { running: false, since: 0, acc: 0, dismissed: false };
@@ -434,7 +467,6 @@ const elapsed = () => clock.acc + (clock.running ? (Date.now() - clock.since) / 
 const fmt = (x) => { x = Math.max(0, Math.round(x)); const h = Math.floor(x / 3600), m = Math.floor(x / 60) % 60, sec = x % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0'); };
 function startClock() { if (!clock.running) { clock.running = true; clock.since = Date.now(); } }
 function pauseClock() { if (clock.running) { clock.acc = elapsed(); clock.running = false; } }
-const $ = (id) => document.getElementById(id);
 
 function tabs() {
   $('tabs').innerHTML = Object.keys(DATA).map((t) => `<button data-t="${t}" class="lnk t${+t === season ? ' on' : ''}">Temporada ${t}</button>`).join('')
@@ -446,7 +478,7 @@ function grid() {
     const k = `${season}x${e.n}`;
     const on = current && key(current) === k;
     const st = on ? '▶ viendo' : seen.has(k) ? '✓ vista' : e.dur;
-    return `<li class="ep${seen.has(k) ? ' seen' : ''}${on ? ' on' : ''}" data-k="${k}"><div class="top"><span class="em">${ICON[k] || '🎬'}</span><span class="t">${e.n}. ${e.title}</span><span class="st">${st}</span></div><div class="d">${e.desc}</div></li>`;
+    return `<li class="ep${seen.has(k) ? ' seen' : ''}${on ? ' on' : ''}" data-k="${k}"><div class="top"><span class="em">${icon(k)}</span><span class="t">${/^Capítulo \d+$/.test(e.title) ? e.title : `${e.n}. ${e.title}`}</span><span class="st">${st}</span></div>${e.desc ? `<div class="d">${e.desc}</div>` : ''}</li>`;
   }).join('');
 }
 const code = (e) => `${e.t}x${String(e.n).padStart(2, '0')}`;
@@ -455,8 +487,8 @@ function home() {
   // si el último ya lo viste, te propone el que sigue
   const e = last && seen.has(key(last)) && flat[flat.indexOf(last) + 1] || last;
   $('hero').innerHTML = e
-    ? `<div class="big">${ICON[key(e)]}</div><div class="k">${e === last ? 'Seguir viendo' : 'Te toca'} · ${code(e)} · ${e.dur}</div><h2>${e.title}</h2><p>${e.desc}</p><button class="main" data-k="${key(e)}" type="button">▶ ${e === last ? 'seguir' : 'ver'}</button>`
-    : `<div class="big">${ICON['1x1']}</div><div class="k">Arrancá por el principio · 1x01 · ${flat[0].dur}</div><h2>${flat[0].title}</h2><p>${flat[0].desc}</p><button class="main" data-k="1x1" type="button">▶ empezar</button>`;
+    ? `<div class="big">${icon(key(e))}</div><div class="k">${e === last ? 'Seguir viendo' : 'Te toca'} · ${code(e)} · ${e.dur}</div><h2>${e.title}</h2><p>${e.desc || SHOWS[show].about || ''}</p><button class="main" data-k="${key(e)}" type="button">▶ ${e === last ? 'seguir' : 'ver'}</button>`
+    : `<div class="big">${icon('1x1')}</div><div class="k">Arrancá por el principio · 1x01 · ${flat[0].dur}</div><h2>${flat[0].title}</h2><p>${flat[0].desc || SHOWS[show].about || ''}</p><button class="main" data-k="1x1" type="button">▶ empezar</button>`;
   $('seasons').innerHTML = Object.entries(DATA).map(([t, eps]) => {
     const v = eps.filter((x) => seen.has(`${t}x${x.n}`)).length;
     const mins = Math.round(eps.reduce((a, x) => a + (x.secs || 0), 0) / 3600);
@@ -471,7 +503,7 @@ function render() {
 }
 function winTitle(t) { $('wt').textContent = t; $('task').textContent = '📼 ' + t; document.title = t; }
 function goHome() {
-  winTitle('Los Simuladores');
+  winTitle(SHOWS[show].name);
   current = null;
   pauseClock(); hideNext();
   $('stage').hidden = true;
@@ -493,16 +525,16 @@ function play(e, opts = {}) {
   hideNext();
   $('f-num').textContent = `temporada ${e.t}, capítulo ${e.n}`;
   $('f-title').textContent = e.title;
-  winTitle(`${code(e)} - ${e.title}.avi - Los Simuladores`);
-  $('f-icon').textContent = ICON[key(e)] || '';
+  winTitle(`${code(e)} - ${e.title}.avi - ${SHOWS[show].name}`);
+  $('f-icon').textContent = icon(key(e));
   $('f-dur').textContent = e.dur;
-  $('f-desc').textContent = e.desc;
+  $('f-desc').textContent = e.desc || SHOWS[show].about || '';
   const i = flat.indexOf(e);
   $('prev').disabled = i === 0;
   $('next').disabled = i === flat.length - 1;
   seenBtn();
   render();
-  if (location.hash !== `#${key(e)}`) history[location.hash ? 'replaceState' : 'pushState'](null, '', `#${key(e)}`);
+  if (location.hash !== `#${hashOf(e)}`) history[location.hash ? 'replaceState' : 'pushState'](null, '', `#${hashOf(e)}`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function seenBtn() { $('f-seen').textContent = seen.has(key(current)) ? 'desmarcar vista' : 'marcar como vista'; }
@@ -557,6 +589,8 @@ document.addEventListener('keydown', (ev) => {
 });
 
 document.addEventListener('click', (ev) => {
+  const sh = ev.target.closest('[data-show]');
+  if (sh) { if (sh.dataset.show !== show) { setShow(sh.dataset.show); goHome(); } return; }
   const t = ev.target.closest('[data-t]');
   if (t) { season = +t.dataset.t; store.set('season', season); render(); if (t.classList.contains('season')) $('tabs').scrollIntoView({ behavior: 'smooth' }); return; }
   const ep = ev.target.closest('[data-k]');
@@ -573,14 +607,18 @@ $('f-seen').onclick = () => {
   seenBtn(); render();
 };
 
-document.addEventListener('change', (ev) => { if (ev.target.id === 'auto') { auto = ev.target.checked; store.set('auto', auto); if (!auto) hideNext(); } });
+document.addEventListener('change', (ev) => { if (ev.target.id === 'auto') { auto = ev.target.checked; ls.set('sim:auto', auto); if (!auto) hideNext(); } });
 $('back').onclick = goHome;
 $('home-link').onclick = (ev) => { ev.preventDefault(); goHome(); };
 function route() {
-  const e = flat.find((x) => key(x) === location.hash.slice(1));
+  const m = location.hash.match(/^#(?:([a-z]+)-)?(\d+x\d+)$/);
+  if (m && (m[1] || 'sim') !== show) setShow(m[1] || 'sim');
+  const e = m && flat.find((x) => key(x) === m[2]);
   if (e) { if (e !== current) play(e); } else if (current) goHome(); else render();
 }
 addEventListener('popstate', route);
+setShow(ls.get('app:show', 'sim'));
+winTitle(SHOWS[show].name);
 route();
 </script>
 </body>
