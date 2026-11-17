@@ -38,9 +38,10 @@ button:disabled { color: #808080; text-shadow: 1px 1px 0 #fff; cursor: default; 
 .toolbar h1 { font-size: 13px; margin: 0; }
 .toolbar h1 a { color: #000; text-decoration: none; }
 .toolbar .sub { color: #404040; }
-.shows { display: flex; gap: 4px; margin-left: auto; }
-.shows button { min-width: 0; padding: 3px 10px; }
-.shows button.on { font-weight: bold; background: #e0e0e0 repeating-conic-gradient(#c0c0c0 0 25%, #fff 0 50%) 0 0 / 2px 2px; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
+.shows { display: flex; gap: 6px; margin-left: auto; }
+.shows button { min-width: 0; padding: 7px 18px; font-size: 13px; font-weight: bold; min-height: 32px; }
+.shows button:active:not(:disabled) { padding: 8px 17px 6px 19px; }
+.shows button.on { color: #000080; background: #e0e0e0 repeating-conic-gradient(#c0c0c0 0 25%, #fff 0 50%) 0 0 / 2px 2px; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
 .shows + .back { margin-left: 4px; }
 .back { margin-left: auto; color: #000; text-decoration: none; background: #c0c0c0; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff; padding: 4px 12px; min-height: 23px; }
 .back:active:not(:disabled) { color: #000; padding: 5px 11px 3px 13px; box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
