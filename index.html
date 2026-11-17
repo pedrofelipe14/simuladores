@@ -81,6 +81,8 @@ legend { padding: 0 4px; }
 .info p { margin: 6px 0 10px; max-width: 800px; }
 .bar { display: flex; flex-wrap: wrap; gap: 6px; }
 .clock { margin-top: 8px; color: #404040; }
+.okbtn { display: inline-flex; align-items: center; min-height: 23px; padding: 4px 12px; color: #000; text-decoration: none; background: #c0c0c0; box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff; }
+.okbtn:active { box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
 
 /* cartel de siguiente: un cuadro de diálogo */
 .next-up { position: absolute; right: 16px; bottom: 60px; z-index: 4; width: 310px; max-width: calc(100% - 32px); }
@@ -147,6 +149,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
   .info h2 { font-size: 15px; }
   .bar button { flex: 1; min-width: 0; padding-left: 6px; padding-right: 6px; }
   .bar #f-seen { flex-basis: 100%; }
+  .bar .okbtn { flex-basis: 100%; justify-content: center; }
   .tabs .t { padding: 3px 8px 4px; }
   .auto { order: 3; margin: 6px 0 6px 2px; flex-basis: 100%; }
   .count { order: 2; }
@@ -183,7 +186,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
     <section class="stage" id="stage" hidden>
       <div class="sunken screen-wrap">
         <div class="screen" id="screen">
-          <iframe id="player" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          <iframe id="player" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen scrolling="no" referrerpolicy="strict-origin-when-cross-origin"></iframe>
           <button class="fs" id="fs" type="button" title="Pantalla completa (F)">Pantalla completa</button>
           <div class="win next-up" id="next-up" hidden>
             <div class="title-bar"><span class="tt">Siguiente capítulo</span><span class="ctl"><span>×</span></span></div>
@@ -207,6 +210,7 @@ footer { color: #404040; font-size: 11px; margin-top: 8px; }
           <button id="prev" type="button">&lt; Anterior</button>
           <button id="next" type="button">Siguiente &gt;</button>
           <button id="f-seen" type="button"></button>
+          <a id="f-ok" class="okbtn" target="_blank" rel="noopener" title="Si el video no arranca acá, abrilo directo en ok.ru">¿No arranca? Abrir en ok.ru &#8599;</a>
         </div>
         <div class="clock" id="clock"></div>
       </div>
@@ -539,6 +543,7 @@ function play(e, opts = {}) {
   $('f-icon').textContent = icon(key(e));
   $('f-dur').textContent = e.dur;
   $('f-desc').textContent = e.desc || SHOWS[show].about || '';
+  $('f-ok').href = e.url.replace('/videoembed/', '/video/');
   const i = flat.indexOf(e);
   $('prev').disabled = i === 0;
   $('next').disabled = i === flat.length - 1;
