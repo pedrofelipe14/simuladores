@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Los Simuladores</title>
+<style>
+:root { --bg: #141414; --panel: #1d1d1d; --hover: #252525; --line: #2e2e2e; --text: #e6e6e6; --muted: #9a9a9a; --acc: #f2c14e; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 13px/1.55 Verdana, Tahoma, sans-serif; margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 18px 50px; }
+header { padding: 30px 0 24px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; }
+h1 { font: bold 27px Georgia, 'Times New Roman', serif; margin: 0; }
+.sub { color: var(--muted); font-size: 14px; }
+.resume { margin-left: auto; color: var(--muted); font-size: 14px; }
+button { font: inherit; font-size: 12.5px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button:hover:not(:disabled) { background: var(--hover); border-color: #444; }
+button:disabled { opacity: .4; cursor: default; }
+.lnk { background: none; border: 0; padding: 0; color: var(--acc); }
+.lnk:hover:not(:disabled) { background: none; text-decoration: underline; }
+
+.stage { margin-bottom: 26px; }
+.stage[hidden] { display: none; }
+.screen { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
+.screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.screen:fullscreen { border-radius: 0; aspect-ratio: auto; }
+.info { padding: 14px 2px 0; }
+.info h2 { font: bold 20px Georgia, serif; margin: 0; }
+.info h2 .dur { color: var(--muted); font-weight: 400; font-size: 15px; }
+.info .num { color: var(--muted); font-size: 14px; }
+.info p { margin: 8px 0 12px; max-width: 780px; color: #cfcfcf; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.clock { color: var(--muted); font-size: 13px; margin-top: 10px; }
+.fs { position: absolute; right: 10px; top: 10px; z-index: 3; opacity: 0; transition: opacity .15s; background: rgba(0,0,0,.65); border-color: transparent; }
+.screen:hover .fs { opacity: 1; }
+.next-up { position: absolute; right: 16px; bottom: 64px; z-index: 4; width: 300px; max-width: calc(100% - 32px); background: rgba(20,20,20,.95); border: 1px solid #3a3a3a; border-radius: 8px; padding: 12px 14px; }
+.next-up[hidden] { display: none; }
+.next-up .k { color: var(--muted); font-size: 13px; }
+.next-up b { display: block; font-size: 16px; margin: 2px 0 10px; }
+.next-up .row { display: flex; gap: 8px; }
+.next-up .go { flex: 1; position: relative; overflow: hidden; background: var(--text); color: #111; border-color: var(--text); font-weight: 600; }
+.next-up .go:hover { background: #fff; }
+.next-up .go i { position: absolute; inset: 0; background: var(--acc); transform-origin: left; transform: scaleX(0); }
+.next-up .go span { position: relative; }
+
+.tabs { margin: 0 0 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; border-bottom: 1px solid var(--line); }
+.tabs .t { color: var(--muted); font-size: 14px; padding: 8px 2px; border-bottom: 2px solid transparent; margin-bottom: -1px; border-radius: 0; }
+.tabs .t:hover { color: var(--text); text-decoration: none; }
+.tabs .t.on { color: var(--text); font-weight: 600; border-bottom-color: var(--acc); }
+.auto { color: var(--muted); font-size: 14px; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+.auto input { accent-color: var(--acc); }
+.count { color: var(--muted); font-size: 14px; margin-left: auto; }
+ol.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 8px 12px; }
+.ep { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: border-color .12s, background .12s; }
+.ep:hover { border-color: #4a4a4a; background: #212121; }
+.ep .top { display: flex; align-items: baseline; gap: 8px; }
+.ep .em { font-size: 17px; line-height: 1; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+.ep .t { font-weight: bold; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep .st { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.ep .d { margin-top: 3px; color: var(--muted); font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ep.seen .st { color: #7fbf6a; }
+.ep.seen .t { color: #bdbdbd; }
+.ep.on { border-color: var(--acc); background: #221f17; }
+.ep.on .st { color: var(--acc); }
+.box .big { font-size: 44px; line-height: 1; margin-bottom: 14px; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+.info h2 .em { font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; font-weight: normal; margin-right: 4px; }
+h1 a { color: inherit; text-decoration: none; }
+h1 a:hover { color: var(--acc); }
+.back { margin-left: auto; font-size: 14px; }
+.home[hidden], .back[hidden] { display: none; }
+.home { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; margin: 0 0 48px; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 28px 30px; display: flex; flex-direction: column; justify-content: center; }
+.box .k { color: var(--muted); font-size: 13px; }
+.box h2 { margin: 6px 0 10px; font: bold 28px/1.15 Georgia, serif; }
+.box p { margin: 0 0 22px; max-width: 520px; font-size: 13.5px; line-height: 1.65; color: #cfcfcf; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.box .main { align-self: flex-start; background: var(--acc); color: #1a1405; border-color: var(--acc); font-weight: bold; font-size: 14px; padding: 10px 26px; }
+.box .main:hover { background: #f7cf6d; }
+.seasons { display: flex; flex-direction: column; gap: 14px; }
+.season { flex: 1; text-align: left; display: block; width: 100%; padding: 20px 22px; border-radius: 10px; }
+.season b { font: bold 19px Georgia, serif; display: block; margin-bottom: 2px; }
+.season small:first-of-type { margin-left: 0; }
+.season small { color: var(--muted); margin-left: 6px; }
+.prog { height: 5px; background: #2c2c2c; border-radius: 3px; margin: 12px 0 6px; overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--acc); }
+@media (max-width: 760px) { .home { grid-template-columns: 1fr; } }
+footer { margin-top: 50px; color: #666; font-size: 12px; }
+@media (max-width: 600px) { ol.grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><a href="#" id="home-link">Los Simuladores</a></h1>
+    <span class="sub">todos los capítulos para ver de corrido</span>
+    <button class="lnk back" id="back" type="button" hidden>&larr; volver al índice</button>
+  </header>
+
+  <section class="home" id="home">
+    <div class="box" id="hero"></div>
+    <div class="seasons" id="seasons"></div>
+  </section>
+
+  <section class="stage" id="stage" hidden>
+    <div class="screen" id="screen">
+      <iframe id="player" allow="autoplay; fullscreen" allowfullscreen></iframe>
+      <button class="fs" id="fs" type="button" title="Pantalla completa (F)">pantalla completa</button>
+      <div class="next-up" id="next-up" hidden>
+        <div class="k" id="nu-k">Sigue:</div>
+        <b id="nu-title"></b>
+        <div class="row">
+          <button class="go" id="nu-go" type="button"><i id="nu-bar"></i><span>ver ya</span></button>
+          <button id="nu-cancel" type="button">cancelar</button>
+        </div>
+      </div>
+    </div>
+    <div class="info">
+      <h2><span class="em" id="f-icon"></span><span id="f-title"></span> <span class="dur">(<span id="f-dur"></span>)</span></h2>
+      <div class="num" id="f-num"></div>
+      <p id="f-desc"></p>
+      <div class="bar">
+        <button id="prev" type="button">&laquo; anterior</button>
+        <button id="next" type="button">siguiente &raquo;</button>
+        <button id="f-seen" type="button"></button>
+      </div>
+      <div class="clock" id="clock"></div>
+    </div>
+  </section>
+
+  <div class="tabs" id="tabs"></div>
+  <ol class="grid" id="grid"></ol>
+  <footer>Uso personal. Los videos se reproducen desde ok.ru.</footer>
+</div>
+
+<script>
+const DATA = {
+ "1": [
+  {
+   "n": 1,
+   "title": "Tarjeta de Navidad",
+   "desc": "Una pareja está por divorciarse, pero el hombre contrata a expertos para que lo ayuden a reconquistar a su esposa.",
+   "dur": "40 min",
+   "url": "https://ok.ru/videoembed/7286191491722",
+   "secs": 2419
+  },
+  {
+   "n": 2,
+   "title": "Diagnóstico rectoscópico",
+   "desc": "Laguzzi, un usurero despiadado, amenaza de muerte a los hijos de Vanegas, su cliente, si no paga la deuda antes de determinada fecha. Vanegas contrata a los Simuladores.",
+   "dur": "44 min",
+   "url": "https://ok.ru/videoembed/9601507658378",
+   "secs": 2684
+  },
+  {
+   "n": 3,
+   "title": "Seguro de desempleo",
+   "desc": "Despiden a Feler tras cuarenta años de trabajo en una fábrica láctea. Los Simuladores se encargarán de conectar a Feler directamente con los dueños de la fábrica.",
+   "dur": "49 min",
+   "url": "https://ok.ru/videoembed/7286192802442",
+   "secs": 2975
+  },
+  {
+   "n": 4,
+   "title": "El testigo español",
+   "desc": "Alicia, oftalmóloga, casada y madre de dos hijos, recibe sorpresivamente la visita en su propia casa de Villarreal, un egocéntrico colega español que quiere chantajearla.",
+   "dur": "48 min",
+   "url": "https://ok.ru/videoembed/7286192605834",
+   "secs": 2901
+  },
+  {
+   "n": 5,
+   "title": "El joven simulador",
+   "desc": "A la mujer del arquitecto Miguens podrían quedarle pocos meses de vida. El médico recomienda que no le den malas noticias. Pero su hijo está a punto de repetir el año.",
+   "dur": "47 min",
+   "url": "https://ok.ru/videoembed/7286192671370",
+   "secs": 2855
+  },
+  {
+   "n": 6,
+   "title": "El pequeño problema del gran hombre",
+   "desc": "El Dr. Agustín Mendilaharzu, Presidente de la Nación, sufre de impotencia sexual. Por miedo a que la prensa se entere, se niega a ver a un sexólogo.",
+   "dur": "54 min",
+   "url": "https://ok.ru/videoembed/9601509427850",
+   "secs": 3298
+  },
+  {
+   "n": 7,
+   "title": "Fuera de cálculo",
+   "desc": "Los Simuladores entran a un banco para extraer los negativos con fotos de Sorkin, su cliente, junto a su amante, de la caja de seguridad de un extorsionador.",
+   "dur": "52 min",
+   "url": "https://ok.ru/videoembed/7286192736906",
+   "secs": 3141
+  },
+  {
+   "n": 8,
+   "title": "El pacto Copérnico",
+   "desc": "Zarazola es un abogado adúltero que desea desprenderse de Laura, su mujer, sin sentir culpa. Contacta a los Simuladores para que ella lo deje a él.",
+   "dur": "57 min",
+   "url": "https://ok.ru/videoembed/9601510673034",
+   "secs": 3440
+  },
+  {
+   "n": 9,
+   "title": "El último héroe",
+   "desc": "Milazzo, un falso representante de artistas, explota diversos barrios pobres, cobrando a sus clientes una matrícula para hacerlos famosos y llevarlos a trabajar.",
+   "dur": "53 min",
+   "url": "https://ok.ru/videoembed/9601512311434",
+   "secs": 3198
+  },
+  {
+   "n": 10,
+   "title": "Los impresentables",
+   "desc": "Clara, de padres muy ordinarios, está de novia con Federico, hijo de una familia elegante. Ante un encuentro familiar, Los Simuladores se encargan de que todo salga bien.",
+   "dur": "51 min",
+   "url": "https://ok.ru/videoembed/9601513818762",
+   "secs": 3078
+  },
+  {
+   "n": 11,
+   "title": "El colaborador foráneo",
+   "desc": "Crucitti es un comisario corrupto que extorsiona a los dueños de los locales comerciales de su zona. Pero Los Simuladores se encargarán de resolver el problema.",
+   "dur": "48 min",
+   "url": "https://ok.ru/videoembed/7286192474762",
+   "secs": 2902
+  },
+  {
+   "n": 12,
+   "title": "Marcela & Pau",
+   "desc": "Marcela está sumergida en una profunda depresión. No puede dormir bien y molesta permanentemente a su exmarido y a Natalia, su hija, quien convoca a Los Simuladores.",
+   "dur": "52 min",
+   "url": "https://ok.ru/videoembed/7286193130122",
+   "secs": 3148
+  },
+  {
+   "n": 13,
+   "title": "Un trabajo involuntario",
+   "desc": "Los Simuladores están pensando en tomarse unas vacaciones cuando secuestran a Santos, el estratega del grupo.",
+   "dur": "58 min",
+   "url": "https://ok.ru/videoembed/9601515719306",
+   "secs": 3534
+  }
+ ],
+ "2": [
+  {
+   "n": 1,
+   "title": "Los cuatro Notables",
+   "desc": "Una mujer tiene que operar a su padre de urgencia, y en la clínica le dan la noticia de que su seguro médico no cubre el tratamiento de la operación.",
+   "dur": "58 min",
+   "url": "https://ok.ru/videoembed/7289262312074",
+   "secs": 3518
+  },
+  {
+   "n": 2,
+   "title": "Z-9000",
+   "desc": "Una mujer, que recibe golpes y maltratos por parte de su marido, contacta a Los Simuladores para que le resuelvan el problema.",
+   "dur": "50 min",
+   "url": "https://ok.ru/videoembed/9602281245322",
+   "secs": 3059
+  },
+  {
+   "n": 3,
+   "title": "La gargantilla de las cuatro estaciones",
+   "desc": "Las mujeres son la debilidad de un joven arquitecto. El problema es que está por casarse y no quiere serle infiel a su novia y futura esposa.",
+   "dur": "50 min",
+   "url": "https://ok.ru/videoembed/9602281310858",
+   "secs": 3048
+  },
+  {
+   "n": 4,
+   "title": "El clan Motul",
+   "desc": "Un grupo de ancianos que vive en un hogar se entera de que el dueño lo quiere vender para su demolición. Los Simuladores montan un fantasioso operativo.",
+   "dur": "55 min",
+   "url": "https://ok.ru/videoembed/7289262181002",
+   "secs": 3358
+  },
+  {
+   "n": 5,
+   "title": "El vengador infantil",
+   "desc": "Un niño de séptimo grado, gordito y distinto a los demás, es el chivo expiatorio de sus compañeros. Los Simuladores intentarán revertir la situación por medio de un falso concurso.",
+   "dur": "58 min",
+   "url": "https://ok.ru/videoembed/9602281179786",
+   "secs": 3520
+  },
+  {
+   "n": 6,
+   "title": "El matrimonio mixto",
+   "desc": "Una joven pareja con familias de distintas religiones (católicos y judíos) contacta a Los Simuladores para que sus padres dejen de lado sus pensamientos estructurados.",
+   "dur": "1 hora y 6 min",
+   "url": "https://ok.ru/videoembed/7289262246538",
+   "secs": 3974
+  },
+  {
+   "n": 7,
+   "title": "La Brigada B",
+   "desc": "El FBI captura a la Brigada B por llevar a cabo un operativo relacionado con árabes y terroristas para Los Simuladores sin su autorización.",
+   "dur": "1 hora y 2 min",
+   "url": "https://ok.ru/videoembed/9602281114250",
+   "secs": 3731
+  },
+  {
+   "n": 8,
+   "title": "Fin de semana de descanso",
+   "desc": "Los Simuladores interrumpen sus tranquilas vacaciones en Entre Ríos cuando intervienen en una pelea de pareja que pasa a mayores.",
+   "dur": "56 min",
+   "url": "https://ok.ru/videoembed/7289262508682",
+   "secs": 3405
+  },
+  {
+   "n": 9,
+   "title": "El debilitador social",
+   "desc": "Los Simuladores simulan un juicio internacional contra un manager de modelos que presiona a las jóvenes a caer en hábitos alimenticios poco saludables.",
+   "dur": "1 hora y 9 min",
+   "url": "https://ok.ru/videoembed/7289262115466",
+   "secs": 4177
+  },
+  {
+   "n": 10,
+   "title": "El anillo de Salomón",
+   "desc": "Un famoso director de orquesta contrata a Los Simuladores para deshacerse de un cada vez más insistente fanático.",
+   "dur": "58 min",
+   "url": "https://ok.ru/videoembed/9602281376394",
+   "secs": 3499
+  },
+  {
+   "n": 11,
+   "title": "Episodio final",
+   "desc": "Los Simuladores deberán enfrentarse finalmente a Milazzo y, además, afrontarán su último caso antes de separarse indefinidamente: Intentar convencer a un ambicioso empleado de una corporación para que vuelva a su casa y ayude en el negocio familiar.",
+   "dur": "1 hora 49 min",
+   "url": "https://ok.ru/videoembed/7289262574218",
+   "secs": 6551
+  }
+ ]
+};
+const ICON = {
+  '1x1': '🎄', '1x2': '💸', '1x3': '🥛', '1x4': '👓', '1x5': '📚', '1x6': '🏛️', '1x7': '🏦', '1x8': '💔', '1x9': '🎤', '1x10': '🍽️', '1x11': '🚔', '1x12': '🌙', '1x13': '🕶️',
+  '2x1': '🏥', '2x2': '🤖', '2x3': '💎', '2x4': '👴', '2x5': '🏆', '2x6': '💒', '2x7': '🕵️', '2x8': '🎣', '2x9': '⚖️', '2x10': '🎻', '2x11': '🏁',
+};
+const flat = Object.entries(DATA).flatMap(([t, eps]) => eps.map((e) => ({ ...e, t: +t })));
+const key = (e) => `${e.t}x${e.n}`;
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem('sim:' + k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('sim:' + k, JSON.stringify(v)); } catch {} },
+};
+let seen = new Set(store.get('seen', []));
+let season = store.get('season', 1);
+let current = null;
+let auto = store.get('auto', true);
+// ok.ru no avisa cuando termina el video: contamos el tiempo desde que le das play
+// (cuando hacés click en el reproductor) contra la duración exacta del capítulo.
+const clock = { running: false, since: 0, acc: 0, dismissed: false };
+const COUNTDOWN = 12;
+const elapsed = () => clock.acc + (clock.running ? (Date.now() - clock.since) / 1000 : 0);
+const fmt = (x) => { x = Math.max(0, Math.round(x)); const h = Math.floor(x / 3600), m = Math.floor(x / 60) % 60, sec = x % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0'); };
+function startClock() { if (!clock.running) { clock.running = true; clock.since = Date.now(); } }
+function pauseClock() { if (clock.running) { clock.acc = elapsed(); clock.running = false; } }
+const $ = (id) => document.getElementById(id);
+
+function tabs() {
+  $('tabs').innerHTML = Object.keys(DATA).map((t) => `<button data-t="${t}" class="lnk t${+t === season ? ' on' : ''}">Temporada ${t}</button>`).join('')
+    + `<label class="auto"><input type="checkbox" id="auto" ${auto ? 'checked' : ''}/> pasar solo al siguiente</label>`
+    + `<span class="count">vistos: ${flat.filter((e) => seen.has(key(e))).length}/${flat.length}</span>`;
+}
+function grid() {
+  $('grid').innerHTML = DATA[season].map((e) => {
+    const k = `${season}x${e.n}`;
+    const on = current && key(current) === k;
+    const st = on ? '▶ viendo' : seen.has(k) ? '✓ vista' : e.dur;
+    return `<li class="ep${seen.has(k) ? ' seen' : ''}${on ? ' on' : ''}" data-k="${k}"><div class="top"><span class="em">${ICON[k] || '🎬'}</span><span class="t">${e.n}. ${e.title}</span><span class="st">${st}</span></div><div class="d">${e.desc}</div></li>`;
+  }).join('');
+}
+const code = (e) => `${e.t}x${String(e.n).padStart(2, '0')}`;
+function home() {
+  const last = flat.find((x) => key(x) === store.get('last', null));
+  // si el último ya lo viste, te propone el que sigue
+  const e = last && seen.has(key(last)) && flat[flat.indexOf(last) + 1] || last;
+  $('hero').innerHTML = e
+    ? `<div class="big">${ICON[key(e)]}</div><div class="k">${e === last ? 'Seguir viendo' : 'Te toca'} · ${code(e)} · ${e.dur}</div><h2>${e.title}</h2><p>${e.desc}</p><button class="main" data-k="${key(e)}" type="button">▶ ${e === last ? 'seguir' : 'ver'}</button>`
+    : `<div class="big">${ICON['1x1']}</div><div class="k">Arrancá por el principio · 1x01 · ${flat[0].dur}</div><h2>${flat[0].title}</h2><p>${flat[0].desc}</p><button class="main" data-k="1x1" type="button">▶ empezar</button>`;
+  $('seasons').innerHTML = Object.entries(DATA).map(([t, eps]) => {
+    const v = eps.filter((x) => seen.has(`${t}x${x.n}`)).length;
+    const mins = Math.round(eps.reduce((a, x) => a + (x.secs || 0), 0) / 3600);
+    return `<button class="season" data-t="${t}" type="button"><b>Temporada ${t}</b><small>${eps.length} capítulos · unas ${mins} horas</small><div class="prog"><i style="width:${(v / eps.length) * 100}%"></i></div><small style="margin:0">${v ? `viste ${v} de ${eps.length}` : 'sin empezar'}</small></button>`;
+  }).join('');
+}
+function render() {
+  tabs(); grid();
+  $('home').hidden = !!current;
+  $('back').hidden = !current;
+  if (!current) home();
+}
+function goHome() {
+  current = null;
+  pauseClock(); hideNext();
+  $('stage').hidden = true;
+  $('player').src = 'about:blank';
+  if (location.hash) history.pushState(null, '', location.pathname);
+  render();
+  window.scrollTo({ top: 0 });
+}
+
+function play(e, opts = {}) {
+  current = e;
+  season = e.t;
+  store.set('season', season);
+  store.set('last', key(e));
+  $('stage').hidden = false;
+  $('player').src = e.url + (opts.autoplay ? '?autoplay=1' : '');
+  Object.assign(clock, { running: false, acc: 0, dismissed: false });
+  if (opts.autoplay) startClock();
+  hideNext();
+  $('f-num').textContent = `temporada ${e.t}, capítulo ${e.n}`;
+  $('f-title').textContent = e.title;
+  $('f-icon').textContent = ICON[key(e)] || '';
+  $('f-dur').textContent = e.dur;
+  $('f-desc').textContent = e.desc;
+  const i = flat.indexOf(e);
+  $('prev').disabled = i === 0;
+  $('next').disabled = i === flat.length - 1;
+  seenBtn();
+  render();
+  if (location.hash !== `#${key(e)}`) history[location.hash ? 'replaceState' : 'pushState'](null, '', `#${key(e)}`);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function seenBtn() { $('f-seen').textContent = seen.has(key(current)) ? 'desmarcar vista' : 'marcar como vista'; }
+function step(d, opts = {}) {
+  const i = flat.indexOf(current) + d;
+  if (!flat[i]) return;
+  if (d > 0) { seen.add(key(current)); store.set('seen', [...seen]); }
+  play(flat[i], opts);
+}
+const nextEp = () => flat[flat.indexOf(current) + 1];
+
+function showNext() {
+  const n = nextEp();
+  if (!n) return;
+  $('nu-k').textContent = `Sigue (${n.t}x${String(n.n).padStart(2, '0')}):`;
+  $('nu-title').textContent = n.title;
+  $('next-up').hidden = false;
+}
+function hideNext() { $('next-up').hidden = true; }
+
+function tick() {
+  if (!current) return;
+  const left = current.secs - elapsed();
+  const n = nextEp();
+  // el relojito en la carpeta
+  $('clock').innerHTML = !auto || !n ? ''
+    : clock.running ? `pasa solo a "${n.title}" en ${fmt(left)} · <button id="c-pause" class="lnk" type="button">lo pausé</button>`
+    : clock.acc > 0 ? `cuenta frenada (faltan ${fmt(left)}) · <button id="c-resume" class="lnk" type="button">ya le di play de nuevo</button>`
+    : `cuando le des play empieza a contar para pasar solo al que sigue`;
+  if (!auto || !n || clock.dismissed || !clock.running) return;
+  if (left <= COUNTDOWN) {
+    showNext();
+    $('nu-bar').style.transform = `scaleX(${Math.min(1, 1 - left / COUNTDOWN)})`;
+    if (left <= 0) step(1, { autoplay: true });
+  }
+}
+setInterval(tick, 250);
+
+// click en el reproductor = el foco se va al iframe
+addEventListener('blur', () => setTimeout(() => { if (document.activeElement === $('player')) startClock(); }));
+$('nu-go').onclick = () => step(1, { autoplay: true });
+$('nu-cancel').onclick = () => { clock.dismissed = true; hideNext(); };
+$('fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : $('screen').requestFullscreen();
+document.addEventListener('keydown', (ev) => {
+  if (ev.target.closest?.('input, textarea')) return;
+  if (ev.key === 'f' || ev.key === 'F') $('fs').click();
+  if ((ev.key === 'n' || ev.key === 'N') && current) step(1, { autoplay: true });
+});
+
+document.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-t]');
+  if (t) { season = +t.dataset.t; store.set('season', season); render(); if (t.classList.contains('season')) $('tabs').scrollIntoView({ behavior: 'smooth' }); return; }
+  const ep = ev.target.closest('[data-k]');
+  if (ep) return play(flat.find((x) => key(x) === ep.dataset.k));
+  if (ev.target.id === 'c-pause') return pauseClock();
+  if (ev.target.id === 'c-resume') return startClock();
+});
+$('prev').onclick = () => step(-1);
+$('next').onclick = () => step(1);
+$('f-seen').onclick = () => {
+  const k = key(current);
+  seen.has(k) ? seen.delete(k) : seen.add(k);
+  store.set('seen', [...seen]);
+  seenBtn(); render();
+};
+
+document.addEventListener('change', (ev) => { if (ev.target.id === 'auto') { auto = ev.target.checked; store.set('auto', auto); if (!auto) hideNext(); } });
+$('back').onclick = goHome;
+$('home-link').onclick = (ev) => { ev.preventDefault(); goHome(); };
+function route() {
+  const e = flat.find((x) => key(x) === location.hash.slice(1));
+  if (e) { if (e !== current) play(e); } else if (current) goHome(); else render();
+}
+addEventListener('popstate', route);
+route();
+</script>
+</body>
+</html>
